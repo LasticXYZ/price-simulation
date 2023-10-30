@@ -1,5 +1,7 @@
 from linear import Linear
 from config import Config
+import numpy as np
+import matplotlib.pyplot as plt
 
 def start_price_calculate(old_sale, config):
     # Calculate the start price for the upcoming sale
@@ -26,16 +28,12 @@ def start_price_calculate(old_sale, config):
 
     return price
 
-
-@staticmethod
 def rotate_sale(old_sale, config, block_now):
 
     # Calculate the start price for the upcoming sale
     start_price_calculate(old_sale, config)
 
-    max_possible_sales = max(status.core_count - first_core, 0)
-    limit_cores_offered = config.limit_cores_offered
-    cores_offered = min(limit_cores_offered, max_possible_sales)
+    cores_offered = config.limit_cores_offered
     sale_start = max(block_now + config.interlude_length, 0)
     leadin_length = config.leadin_length
     ideal_cores_sold = int(config.ideal_bulk_proportion * cores_offered)
@@ -43,12 +41,12 @@ def rotate_sale(old_sale, config, block_now):
     
     print("ideal_cores_sold", ideal_cores_sold)
     print("cores_offered", cores_offered)
-    print("limit_cores_offered", limit_cores_offered)
-    print("max_possible_sales", max_possible_sales)
     print("sale_start", sale_start)
     print("leadin_length", leadin_length)
 
-def sale_price(sale_start, leadin_length, price, block_now):
+def sale_price(sale_start, config, price, block_now):
+    leadin_length = config.leadin_length
+    
     # Ensure the values are positive and of correct type
     sale_start, leadin_length, price, block_now = map(int, [sale_start, leadin_length, price, block_now])
     if sale_start < 0 or leadin_length <= 0 or price < 0 or block_now < 0:
@@ -80,3 +78,24 @@ if __name__ == "__main__":
         renewal_bump=0.01,
         contribution_timeout=1000
     )
+
+    
+
+    sale_start = 10
+    price = 100
+
+    block_times = np.linspace(sale_start, sale_start + config.leadin_length + 10, 100)
+    sale_prices = [sale_price(sale_start, config, price, block_now) for block_now in block_times]
+
+    plt.plot(block_times, sale_prices, 'bo')
+    plt.xlabel('Block Time')
+    plt.ylabel('Sale Price')
+    plt.title('Sale Price over Time')
+    plt.axvline(x=sale_start, color='r', linestyle='--', label='Sale Start')
+    plt.axvline(x=sale_start + config.leadin_length, color='g', linestyle='--', label='Sale End')
+    plt.legend()
+    plt.show()
+
+
+
+
