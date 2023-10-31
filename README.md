@@ -23,7 +23,7 @@ This repository is meant to be from Lastic for the entire community therefore it
 1. Clone the repository:
    ```sh
    git clone https://github.com/LasticXYZ/price-simulation.git
-   cd sale-price-calculator
+   cd price-simulation
    ```
 
 2. Install the required packages:
