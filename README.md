@@ -2,6 +2,8 @@
 
 This project provides a tool to calculate and visualize the sale price of Coretime  over blocktime based on various parameters. It is implemented in Python and utilizes the Streamlit library for creating an interactive web application.
 
+This repository is meant to be from Lastic for the entire community therefore it will be forever open source under the MIT license. If there are some changes you want to see, or have disagreements with the implementation, feel free to open up an issue or contribute.
+
 ## Features
 
 - Interactive sliders to adjust sale parameters.
