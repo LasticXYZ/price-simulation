@@ -1,6 +1,15 @@
 from linear import Linear
 
 class CalculatePrice:
+    def __init__(self):
+        self.initial_bought_price = 1000
+
+    def change_bought_price(self, new_bought_price):
+        self.initial_bought_price = new_bought_price
+
+    def update_renewal_price(self, config):
+        self.initial_bought_price = self.initial_bought_price * (1 + config.renewal_bump)
+
     @staticmethod
     def start_price_calculate(old_price, config, sold):
         # Calculate the start price for the upcoming sale
@@ -53,16 +62,14 @@ class CalculatePrice:
 
         return sale_price
     
-    @staticmethod
-    def renew_price(recorded_price, price, config, block_now):
-        price_cap = recorded_price * (1 + config.renewal_bump)
-        return min(price_cap, CalculatePrice.sale_price(price, config, recorded_price, block_now))
+    def renew_price(self, sale_start, price, config, block_now):
+        price_cap = self.initial_bought_price
+        return min(price_cap, CalculatePrice.sale_price(sale_start, config, price, block_now))
     
-    @staticmethod
-    def calculate_price(recorded_price, sale_start, config, price, block_now):
+    def calculate_price(self, sale_start, config, price, block_now):
         if block_now < sale_start or block_now > (sale_start + config.region_length):
             raise ValueError("Invalid input: block_now must be greater than or equal to sale_start.")
         elif block_now < sale_start + config.interlude_length:
-            return CalculatePrice.renew_price(recorded_price, price, config, block_now)
+            return self.renew_price(sale_start, price, config, block_now)
         else:
-            return CalculatePrice.sale_price(sale_start + config.interlude_length, config, price, block_now)
+            return self.sale_price(sale_start + config.interlude_length, config, price, block_now)
