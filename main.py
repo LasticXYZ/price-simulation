@@ -66,7 +66,7 @@ def main():
         plot_sale_price(ax, block_times, sale_prices, region_start, config, f'Region {region_i+1}')
 
         # Recalculate the price of renewal of the core
-        price_calculator.update_renewal_price(config)
+        price_calculator.update_renewal_price(sale_start, config, price, )
         # Recalculate the price at the end of each region
         price = price_calculator.start_price_calculate(price, config, sold_cores_in_each_sale)
 
