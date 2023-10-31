@@ -3,7 +3,7 @@ from linear import Linear
 class CalculatePrice:
     def __init__(self):
         self.initial_bought_price = 1000
-        self.new_buy_price = self.initial_bought_price
+        self.new_buy_price = 1000
 
     def change_bought_price(self, new_bought_price):
         self.initial_bought_price = new_bought_price
@@ -65,8 +65,8 @@ class CalculatePrice:
         return sale_price
     
     def renew_price(self, sale_start, price, config, block_now):
-        price_cap = self.initial_bought_price
-        self.new_buy_price = min(price_cap, CalculatePrice.sale_price(sale_start, config, price, block_now))
+        cap_price = self.initial_bought_price * (1 + config.renewal_bump)
+        self.new_buy_price = min(cap_price, CalculatePrice.sale_price(sale_start, config, price, block_now))
         return self.new_buy_price
 
     def calculate_price(self, sale_start, config, price, block_now):
