@@ -31,7 +31,7 @@ def start_price_calculate(old_price, config, sold):
 
 def sale_price(sale_start, config, price, block_now):
     # Calculate the sale price at a given block time
-    
+
     leadin_length = config.leadin_length
     
     # Ensure the values are positive and of correct type
@@ -55,33 +55,6 @@ def sale_price(sale_start, config, price, block_now):
 
     return sale_price
 
-def main():
-    st.title('Sale Price over Time')
-
-    # Initial configuration
-    config = Config(
-        interlude_length=50,
-        leadin_length=25,
-        region_length=100,
-        ideal_bulk_proportion=0.6,
-        limit_cores_offered=50,
-        renewal_bump=0.02,
-    )
-
-    # Update the configuration based on user input
-    updated_values = get_config_input(config)
-    config.update_config(updated_values)
-
-    sale_start, price, observe_blocks, sold_cores_in_each_sale = get_slider_input()
-    
-    block_times = np.linspace(sale_start, sale_start + observe_blocks, 100)
-    sale_prices = [sale_price(sale_start, config, price, block_now) for block_now in block_times]
-
-    # For every sale, we need to calculate the start price for the upcoming sale
-    price = start_price_calculate(price, config, sold_cores_in_each_sale)
-
-    plot_sale_price(block_times, sale_prices, sale_start, config.leadin_length, config.region_length)
-
 def get_config_input(config):
     # Create input fields and collect updated values
     updated_values = {}
@@ -99,20 +72,51 @@ def get_slider_input():
     sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=50, value=10, step=10)
     return sale_start, price, observe_blocks, sold_cores_in_each_sale
 
-def plot_sale_price(block_times, sale_prices, sale_start, leadin_length, region_length):
+
+def main():
+    st.title('Sale Price over Time')
+
+    # Initial configuration
+    config = Config(
+        interlude_length=50,
+        leadin_length=25,
+        region_length=100,
+        ideal_bulk_proportion=0.6,
+        limit_cores_offered=50,
+        renewal_bump=0.02,
+    )
+
+    # Update the configuration based on user input
+    updated_values = get_config_input(config)
+    config.update_config(updated_values)
+
+    sale_start, initial_price, observe_blocks, sold_cores_in_each_sale = get_slider_input()
+
+    region_nb = int(observe_blocks / config.region_length)
+    
     fig, ax = plt.subplots()
-    ax.plot(block_times, sale_prices, 'bo')
+    price = initial_price
+    for region_i in range(region_nb):
+        region_start = sale_start + region_i * config.region_length
+        block_times = np.linspace(region_start, region_start + config.region_length, 100)
+        
+        sale_prices = [sale_price(region_start, config, price, block_now) for block_now in block_times]
+        plot_sale_price(ax, block_times, sale_prices, region_start, config.leadin_length, config.region_length, f'Region {region_i+1}')
+
+        # Recalculate the price at the end of each region
+        price = start_price_calculate(price, config, sold_cores_in_each_sale)
+
     ax.set_xlabel('Block Time')
     ax.set_ylabel('Sale Price')
     ax.set_title('Sale Price over Time')
-    ax.axvline(x=sale_start, color='r', linestyle='--', label='Lead-in Start')
-    ax.axvline(x=sale_start + leadin_length, color='g', linestyle='--', label='Lead-in End')
-    ax.axvline(x=sale_start + region_length, color='b', linestyle='--', label='Region End')
     ax.legend()
     st.pyplot(fig)
 
+def plot_sale_price(ax, block_times, sale_prices, region_start, leadin_length, region_length, label):
+    ax.plot(block_times, sale_prices, label=label)
+    ax.axvline(x=region_start, color='r', linestyle='--')
+    ax.axvline(x=region_start + leadin_length, color='g', linestyle='--')
+    ax.axvline(x=region_start + region_length, color='b', linestyle='--')
+
 if __name__ == "__main__":
     main()
-
-
-
