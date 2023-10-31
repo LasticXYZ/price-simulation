@@ -1,8 +1,8 @@
-# Core-Time Sale Price Calculator
+# Coretime Sale Price Calculator
 
-This project provides a tool to calculate and visualize the sale price of Coretime  over blocktime based on various parameters. It is implemented in Python and utilizes the Streamlit library for creating an interactive web application.
+This project provides a tool to calculate and visualize the sale price of Coretime over blocktime based on various parameters. It is implemented in Python and utilizes the Streamlit library for creating an interactive web application.
 
-This repository is meant to be from Lastic for the entire community therefore it will be forever open source under the MIT license. If there are some changes you want to see, or have disagreements with the implementation, feel free to open up an issue or contribute.
+This repository is meant to be from [Lastic](https://lastic.xyz) for the entire community therefore it will be forever open source under the GPLv3 license. If there are some changes you want to see, or have disagreements with the implementation, feel free to open up an issue and/or contribute with a pull request.
 
 ## Features
 
@@ -57,7 +57,7 @@ Contributions are welcome! Please feel free to submit pull requests, create issu
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 
