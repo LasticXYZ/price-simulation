@@ -52,3 +52,8 @@ class CalculatePrice:
         sale_price = LF * price
 
         return sale_price
+    
+    def renew_price(self, recorded_price, config, price, block_now):
+        price_cap = recorded_price * (1 + config.renewal_bump)
+        renew_price = min(price_cap, self.sale_price(recorded_price, config, price, block_now))
+        return renew_price
