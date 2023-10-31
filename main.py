@@ -2,6 +2,8 @@ from linear import Linear
 from config import Config
 import numpy as np
 import matplotlib.pyplot as plt
+import streamlit as st
+
 
 def start_price_calculate(old_sale, config):
     # Calculate the start price for the upcoming sale
@@ -68,33 +70,48 @@ def sale_price(sale_start, config, price, block_now):
     return sale_price
 
 if __name__ == "__main__":
+    st.title('Sale Price over Time')
+
+    # Initial configuration
     config = Config(
-        advance_notice=1,
         interlude_length=50,
         leadin_length=25,
         region_length=100,
         ideal_bulk_proportion=0.6,
-        limit_cores_offered=None,
-        renewal_bump=0.01,
-        contribution_timeout=1000
+        limit_cores_offered=50,
+        renewal_bump=0.02,
     )
 
-    
+    # Create input fields and collect updated values
+    updated_values = {}
+    for attribute_name in dir(config):
+        if not attribute_name.startswith("__") and not callable(getattr(config, attribute_name)):
+            value = st.number_input(attribute_name, value=getattr(config, attribute_name))
+            updated_values[attribute_name] = value
 
-    sale_start = 10
-    price = 100
+    # Update the configuration based on user input
+    config.update_config(updated_values)
 
-    block_times = np.linspace(sale_start, sale_start + config.leadin_length + 10, 100)
+    st.write("Updated Config:", config)
+
+
+    # Create a slider for the sale start and price
+    sale_start = st.slider('Sale Start', min_value=0, max_value=100, value=10, step=1)
+    price = st.slider('Price', min_value=0, max_value=2000, value=1000, step=10)
+
+    block_times = np.linspace(sale_start, sale_start + config.region_length, 100)
     sale_prices = [sale_price(sale_start, config, price, block_now) for block_now in block_times]
 
-    plt.plot(block_times, sale_prices, 'bo')
-    plt.xlabel('Block Time')
-    plt.ylabel('Sale Price')
-    plt.title('Sale Price over Time')
-    plt.axvline(x=sale_start, color='r', linestyle='--', label='Sale Start')
-    plt.axvline(x=sale_start + config.leadin_length, color='g', linestyle='--', label='Sale End')
-    plt.legend()
-    plt.show()
+    fig, ax = plt.subplots()
+    ax.plot(block_times, sale_prices, 'bo')
+    ax.set_xlabel('Block Time')
+    ax.set_ylabel('Sale Price')
+    ax.set_title('Sale Price over Time')
+    ax.axvline(x=sale_start, color='r', linestyle='--', label='Sale Start')
+    ax.axvline(x=sale_start + config.leadin_length, color='g', linestyle='--', label='Sale End')
+    ax.legend()
+
+    st.pyplot(fig)
 
 
 
