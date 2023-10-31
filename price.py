@@ -53,7 +53,16 @@ class CalculatePrice:
 
         return sale_price
     
-    def renew_price(self, recorded_price, config, price, block_now):
+    @staticmethod
+    def renew_price(recorded_price, price, config, block_now):
         price_cap = recorded_price * (1 + config.renewal_bump)
-        renew_price = min(price_cap, self.sale_price(recorded_price, config, price, block_now))
-        return renew_price
+        return min(price_cap, CalculatePrice.sale_price(price, config, recorded_price, block_now))
+    
+    @staticmethod
+    def calculate_price(recorded_price, sale_start, config, price, block_now):
+        if block_now < sale_start or block_now > (sale_start + config.region_length):
+            raise ValueError("Invalid input: block_now must be greater than or equal to sale_start.")
+        elif block_now < sale_start + config.interlude_length:
+            return CalculatePrice.renew_price(recorded_price, price, config, block_now)
+        else:
+            return CalculatePrice.sale_price(sale_start + config.interlude_length, config, price, block_now)
