@@ -22,7 +22,7 @@ This repository is meant to be from Lastic for the entire community therefore it
 
 1. Clone the repository:
    ```sh
-   git clone https://github.com/lastic_xyz/sale-price-calculator.git
+   git clone https://github.com/LasticXYZ/price-simulation.git
    cd sale-price-calculator
    ```
 
@@ -63,7 +63,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 [Lastic Telegram](https://t.me/+khw2i6GGYFw3NDNi)
 
-Project Link: [https://github.com/lastic_xyz/price-sumulation](https://github.com/lastic_xyz/price-sumulation)
+Project Link: [https://github.com/lastic_xyz/price-sumulation](https://github.com/LasticXYZ/price-simulation)
 
 ## Acknowledgments
 
