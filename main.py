@@ -7,6 +7,15 @@ import streamlit as st
 def get_config_input(config):
     # Create input fields and collect updated values
     with st.expander("Configuration values"):
+        st.write("""
+                Configuration values:
+                - interlude_length: The length in blocks of the Interlude Period for forthcoming sales.
+                - leadin_length: The length in blocks of the Leadin Period for forthcoming sales.
+                - region_length: The length in blocks of the Region Period for forthcoming sales.
+                - ideal_bulk_proportion: The proportion of cores available for sale which should be sold in order for the price to remain the same in the next sale.
+                - limit_cores_offered: An artificial limit to the number of cores which are allowed to be sold. If `Some` thenno more cores will be sold than this.
+                - renewal_bump: The amount by which the renewal price increases each sale period.
+                """)
         updated_values = {}
         for attribute_name in dir(config):
             if not attribute_name.startswith("__") and not callable(getattr(config, attribute_name)):

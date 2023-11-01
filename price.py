@@ -70,7 +70,7 @@ class CalculatePrice:
         return self.new_buy_price
 
     def calculate_price(self, sale_start, config, price, block_now):
-        if block_now < sale_start or block_now > (sale_start + config.region_length):
+        if not sale_start <= block_now <= (sale_start + config.region_length):
             raise ValueError("Invalid input: block_now must be greater than or equal to sale_start.")
         elif block_now < sale_start + config.interlude_length:
             return self.renew_price(sale_start, price, config, block_now)
