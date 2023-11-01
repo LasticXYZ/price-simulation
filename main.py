@@ -28,11 +28,10 @@ def get_slider_input(config, price_calculator):
     initial_bought_price = st.slider('Start Price of the Core You Bought', min_value=0, max_value=2000, value=1000, step=10)
     price_calculator.change_bought_price(initial_bought_price)
 
-    sale_start = st.slider('Start Block', min_value=0, max_value=100, value=0, step=1)
     price = st.slider('Starting Price', min_value=0, max_value=2000, value=1000, step=10)
     observe_blocks = st.slider('Observe Blocks', min_value=config.region_length, max_value=10 * config.region_length, value=config.region_length, step=config.region_length)
     sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=50, value=40, step=1)
-    return sale_start, price, observe_blocks, sold_cores_in_each_sale
+    return price, observe_blocks, sold_cores_in_each_sale
 
 def plot_sale_price(ax, block_times, sale_prices, region_start, config, label):
     ax.plot(block_times, sale_prices, label=label)
@@ -46,6 +45,7 @@ def main():
     price_calculator = CalculatePrice()
 
     BLOCKS_PER_DAY = 4
+    sale_start = 0
 
     # Initial configuration
     config = Config(
@@ -61,7 +61,7 @@ def main():
     updated_values = get_config_input(config)
     config.update_config(updated_values)
 
-    sale_start, initial_price, observe_blocks, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
+    initial_price, observe_blocks, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
 
     region_nb = int(observe_blocks / config.region_length)
     
