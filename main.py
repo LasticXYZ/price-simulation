@@ -33,9 +33,10 @@ def get_slider_input(config, price_calculator):
     price = st.slider('Starting Price', min_value=0, max_value=2000, value=1000, step=10)
     price_calculator.change_initial_price(price)
 
-    observe_blocks = st.slider('Observe Blocks', min_value=config.region_length, max_value=10 * config.region_length, value=config.region_length * 2, step=config.region_length)
-    sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=50, value=40, step=1)
-    return observe_blocks, sold_cores_in_each_sale
+    observe_blocks = st.slider('Observe Blocks', min_value=config.region_length, max_value=20 * config.region_length, value=config.region_length * 2, step=config.region_length)
+    renewed_cores_in_each_sale = st.slider('Cores renewed in each sale', min_value=0, max_value=config.limit_cores_offered, value=10, step=1)
+    sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=config.limit_cores_offered - renewed_cores_in_each_sale, value=2, step=1)
+    return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
 
 def plot_sale_price(ax, block_times, sale_prices, region_start, config, label):
     ax.plot(block_times, sale_prices, label=label)
@@ -64,7 +65,7 @@ def main():
     config.update_config(updated_values)
     price_calculator.update_config(config)
 
-    observe_blocks, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
+    observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
 
     region_nb = int(observe_blocks / config.region_length)
     
@@ -79,7 +80,7 @@ def main():
         # Recalculate the price of renewal of the core
         price_calculator.update_renewal_price()
         # Recalculate the price at the end of each region
-        price_calculator.start_price_calculate(sold_cores_in_each_sale)
+        price_calculator.start_price_calculate(renewed_cores_in_each_sale, sold_cores_in_each_sale)
 
     ax.set_xlabel('Block Time')
     ax.set_ylabel('Sale Price')
