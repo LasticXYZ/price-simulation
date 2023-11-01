@@ -1,22 +1,31 @@
 from linear import Linear
 
 class CalculatePrice:
-    def __init__(self):
+    def __init__(self, config):
         self.initial_bought_price = 1000
         self.new_buy_price = 1000
+        self.sellout_price = 1000
+        self.config = config
+        self.price = 1000
+
+    def change_initial_price(self, new_initial_price):
+        self.price = new_initial_price
 
     def change_bought_price(self, new_bought_price):
         self.initial_bought_price = new_bought_price
 
-    def update_renewal_price(self, config):
-        cap_price = self.initial_bought_price * (1 + config.renewal_bump)
+    def update_config(self, config):
+        self.config = config
+
+    def update_renewal_price(self):
+        cap_price = self.initial_bought_price * (1 + self.config.renewal_bump)
         self.initial_bought_price = min(cap_price, self.new_buy_price)
 
-    @staticmethod
-    def start_price_calculate(old_price, config, sold):
+    def start_price_calculate(self, sold):
         # Calculate the start price for the upcoming sale
-        offered = config.limit_cores_offered
-        ideal = int(config.ideal_bulk_proportion * offered)
+        # Update price for new cycle
+        offered = self.config.limit_cores_offered
+        ideal = int(self.config.ideal_bulk_proportion * offered)
         if offered == 0:
             # No cores offered for sale - no purchase price.
             purchase_price = None
@@ -28,28 +37,17 @@ class CalculatePrice:
         #     purchase_price = old_sale.sellout_price
         else:
             # Sold less than the ideal - we fall back to the regular price.
-            purchase_price = old_price
+            purchase_price = self.price
 
-        if purchase_price is None:
-            price = old_price
-        else:
-            price = Linear.adapt_price(sold, ideal, offered) * purchase_price
+        if purchase_price is not None:
+            self.price = Linear.adapt_price(sold, ideal, offered) * purchase_price
 
-        return price
-
-    @staticmethod
-    def sale_price(sale_start, config, price, block_now):
+    def sale_price_calculate(self, region_start, block_now):
         # Calculate the sale price at a given block time
-
-        leadin_length = config.leadin_length
-        
-        # Ensure the values are positive and of correct type
-        sale_start, leadin_length, price, block_now = map(int, [sale_start, leadin_length, price, block_now])
-        if sale_start < 0 or leadin_length <= 0 or price < 0 or block_now < 0:
-            raise ValueError("Invalid input: sale_start, leadin_length, price, and block_now must be non-negative. leadin_length must be positive.")
+        leadin_length = self.config.leadin_length
         
         # Calculate num
-        num = max(block_now - sale_start, 0)
+        num = max(block_now - region_start, 0)
         num = min(num, leadin_length)
         
         # Calculate through
@@ -60,19 +58,19 @@ class CalculatePrice:
         LF = Linear.leadin_factor_at(through)
         
         # Calculate sale price
-        sale_price = LF * price
+        sale_price = LF * self.price
 
         return sale_price
     
-    def renew_price(self, sale_start, price, config, block_now):
-        cap_price = self.initial_bought_price * (1 + config.renewal_bump)
-        self.new_buy_price = min(cap_price, CalculatePrice.sale_price(sale_start, config, price, block_now))
+    def renew_price(self, region_start, block_now):
+        cap_price = self.initial_bought_price * (1 + self.config.renewal_bump)
+        self.new_buy_price = min(cap_price, self.sale_price_calculate(region_start, block_now))
         return self.new_buy_price
 
-    def calculate_price(self, sale_start, config, price, block_now):
-        if not sale_start <= block_now <= (sale_start + config.region_length):
-            raise ValueError("Invalid input: block_now must be greater than or equal to sale_start.")
-        elif block_now < sale_start + config.interlude_length:
-            return self.renew_price(sale_start, price, config, block_now)
+    def calculate_price(self, region_start, block_now):
+        if not region_start <= block_now <= (region_start + self.config.region_length):
+            raise ValueError("Invalid input: block_now must be greater than or equal to region_start.")
+        elif block_now < region_start + self.config.interlude_length:
+            return self.renew_price(region_start, block_now)
         else:
-            return self.sale_price(sale_start + config.interlude_length, config, price, block_now)
+            return self.sale_price_calculate(region_start + self.config.interlude_length, block_now)
