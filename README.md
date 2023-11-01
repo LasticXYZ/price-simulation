@@ -57,7 +57,7 @@ Contributions are welcome! Please feel free to submit pull requests, create issu
 
 ## License
 
-This project is licensed under the GNU AFFERO GENERAL PUBLIC LICENSE v3 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
 [Lastic Telegram](https://t.me/+khw2i6GGYFw3NDNi)
