@@ -1,10 +1,12 @@
-from linear import Linear
+from poly import Linear, Exponential
 
 class CalculatePrice:
     """
     This class is responsible for calculating the prices associated with sales over time.
     """
-    def __init__(self, config):
+    def __init__(self, config, linear = True):
+        # The leadin factor is either linear or exponential depending on the value of self.linear
+        self.linear = linear
         # price for which the cores were bought - important for renewal
         self.initial_bought_price = 1000
         # price for which the cores will be bought in the next sale
@@ -99,8 +101,11 @@ class CalculatePrice:
         through = num / leadin_length
         
         # Calculate the lead-in factor (LF). You need to define how LF is calculated based on through.
-        # For example, if LF is a linear function of through, you have:
-        LF = Linear.leadin_factor_at(through)
+        # Choose linear or exponential.
+        if self.linear == True:
+            LF = Linear.leadin_factor_at(through)
+        else:
+            LF = Exponential.leadin_factor_at(through)
         
         # Calculate sale price
         sale_price = LF * self.price

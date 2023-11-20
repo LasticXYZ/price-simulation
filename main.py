@@ -58,7 +58,7 @@ def main():
         renewal_bump=0.05,
     )
 
-    price_calculator = CalculatePrice(config)
+    price_calculator = CalculatePrice(config, linear=True)
 
     # Update the configuration based on user input
     updated_values = get_config_input(config)
