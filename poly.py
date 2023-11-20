@@ -15,7 +15,7 @@ class Linear:
 
 class Exponential:
     @staticmethod
-    def leadin_factor_at(when, factor = 1):
+    def leadin_factor_at(when, factor: int = 1):
         # Exponential decay model for the lead-in factor
         # Factor is not a parameter that is originally used in the `broker pallet code`.
         return pow(2 - when, factor)
