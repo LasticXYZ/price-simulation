@@ -22,13 +22,25 @@ class CalculatePrice:
         self.cores_sold_in_sale = 6
         self.cores_sold = self.cores_sold_in_renewal + self.cores_sold_in_sale
 
+    def get_factor(self):
+        """
+        Get the factor of the exponential or linear function.
+        """
+        return self.factor
+    
+    def get_linear(self):
+        """
+        Get the factor of the exponential or linear function.
+        """
+        return self.linear
+
     def change_linear(self):
         """
         Update the linear factor.
 
         :param linear: The new linear factor to set.
         """
-        self.linear != self.linear
+        self.linear = not self.linear
 
     def change_factor(self, factor):
         """

@@ -33,13 +33,18 @@ def get_slider_input(config, price_calculator):
     price = st.slider('Starting Price', min_value=0, max_value=2000, value=1000, step=10)
     price_calculator.change_initial_price(price)
     
-    st.button(label="price_calculator.linear", on_click=price_calculator.change_linear())
+    st.button(label="price_calculator.linear", on_click=price_calculator.change_linear)
     factor_value = st.slider('Factor Value', min_value=0, max_value=10, value=1, step=1)
     price_calculator.change_factor(factor_value)
+    
+    st.write(price_calculator.get_factor(), price_calculator.linear)
 
     observe_blocks = st.slider('Observe Blocks', min_value=config.region_length, max_value=20 * config.region_length, value=config.region_length * 2, step=config.region_length)
     renewed_cores_in_each_sale = st.slider('Cores renewed in each sale', min_value=0, max_value=config.limit_cores_offered, value=10, step=1)
-    sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=config.limit_cores_offered - renewed_cores_in_each_sale, value=2, step=1)
+    if config.limit_cores_offered - renewed_cores_in_each_sale > 0:
+        sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=config.limit_cores_offered - renewed_cores_in_each_sale, value=0, step=1)
+    else:
+        sold_cores_in_each_sale = 0
     return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
 
 def plot_sale_price(ax, block_times, sale_prices, region_start, config, label):
