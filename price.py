@@ -34,13 +34,13 @@ class CalculatePrice:
         """
         return self.linear
 
-    def change_linear(self):
+    def change_linear(self, linear):
         """
         Update the linear factor.
 
         :param linear: The new linear factor to set.
         """
-        self.linear = not self.linear
+        self.linear = linear
 
     def change_factor(self, factor):
         """
