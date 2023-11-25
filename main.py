@@ -62,6 +62,21 @@ def get_slider_input(config, price_calculator):
         sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=config.limit_cores_offered - renewed_cores_in_each_sale, value=0, step=1)
     else:
         sold_cores_in_each_sale = 0
+
+    st.markdown("### Adjustment for each region length (28 days)")
+    monthly_renewals = {}
+    monthly_sales = {}
+    for month in range(1, observe_time + 1):
+        with st.expander(f"Region {month} Adjustments"):
+            renewed_cores = st.slider(f'Cores renewed in Month {month}', min_value=0, max_value=config.limit_cores_offered, value=10, step=1)
+            if config.limit_cores_offered - renewed_cores > 0:
+                sold_cores = st.slider(f'Cores sold in Month {month}', min_value=0, max_value=config.limit_cores_offered - renewed_cores, value=0, step=1)
+            else:
+                sold_cores = 0
+            monthly_renewals[month] = renewed_cores
+            monthly_sales[month] = sold_cores
+        st.write("Region nb. ", month, ": Renewals ", renewed_cores, ", Sold ", sold_cores)
+
     return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
 
 def plot_sale_price(ax, block_times, sale_prices, region_start, config, label):
