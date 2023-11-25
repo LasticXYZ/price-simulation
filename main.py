@@ -28,23 +28,32 @@ def get_config_input(config):
 
 def get_slider_input(config, price_calculator):
     # Create a slider for the sale start and price
+
+    observe_time = st.slider('X-AXIS - Observing time - Nb.of regions (28 day chunks)', min_value= 1, max_value=20, value=2, step=1)
+    observe_blocks = observe_time * config.region_length
+
     initial_bought_price = st.slider('Start Price of the Core You Bought', min_value=0, max_value=2000, value=1000, step=10)
     price_calculator.change_bought_price(initial_bought_price)
     price = st.slider('Starting Price', min_value=0, max_value=2000, value=1000, step=10)
     price_calculator.change_initial_price(price)
 
-    if price_calculator.get_linear():
-        linear_text = 'Linear'
-    else:
-        linear_text = 'Exponential'
-    linear = st.toggle(linear_text, value=True)
-    price_calculator.change_linear(linear)
-    factor_value = st.slider('Factor Value', min_value=1, max_value=10, value=1, step=1)
-    price_calculator.change_factor(factor_value)
-    
-    st.write(price_calculator.get_factor(), price_calculator.get_linear())
+    with st.expander("Factor curve"):
+        st.write("Change the lead-in factor (LF) curve - To exponential or linear")
 
-    observe_blocks = st.slider('Observe Blocks', min_value=config.region_length, max_value=20 * config.region_length, value=config.region_length * 2, step=config.region_length)
+        linear = st.toggle('-', value=True)
+        if linear:
+            linear_text = 'Linear'
+        else:
+            linear_text = 'Exponential'
+        st.write(linear_text)
+
+        price_calculator.change_linear(linear)
+        factor_value = st.slider('Factor Value', min_value=1, max_value=10, value=1, step=1)
+        price_calculator.change_factor(factor_value)
+    
+        st.write(price_calculator.get_factor(), price_calculator.get_linear())
+
+    st.header("Cores Renewed and Sold in Each Sale")
     renewed_cores_in_each_sale = st.slider('Cores renewed in each sale', min_value=0, max_value=config.limit_cores_offered, value=10, step=1)
     if config.limit_cores_offered - renewed_cores_in_each_sale > 0:
         sold_cores_in_each_sale = st.slider('Cores sold in each sale', min_value=0, max_value=config.limit_cores_offered - renewed_cores_in_each_sale, value=0, step=1)
@@ -74,12 +83,17 @@ def main():
 
     price_calculator = CalculatePrice(config)
 
-    # Update the configuration based on user input
-    updated_values = get_config_input(config)
-    config.update_config(updated_values)
-    price_calculator.update_config(config)
 
-    observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
+    # Sidebar for Configuration Input
+    with st.sidebar:
+        st.header("Configuration Settings")
+        # Update the configuration based on user input
+        updated_values = get_config_input(config)
+        config.update_config(updated_values)
+        price_calculator.update_config(config)
+
+        st.header("Sale Settings")
+        observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
 
     region_nb = int(observe_blocks / config.region_length)
     
