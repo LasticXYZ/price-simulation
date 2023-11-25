@@ -3,52 +3,55 @@ from price import CalculatePrice
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
+from helpercss import create_tooltip
 
 BLOCKS_PER_DAY = 4
 SALE_START = 0
 
 def get_config_input(config):
+    # Help texts for each configuration attribute
+    help_texts = {
+        "interlude_length": "Length in blocks of the Interlude Period for forthcoming sales.",
+        "leadin_length": "Length in blocks of the Leadin Period for forthcoming sales.",
+        "region_length": "Length in blocks of the Region Period for forthcoming sales.",
+        "ideal_bulk_proportion": "Proportion of cores available for sale to maintain stable price.",
+        "limit_cores_offered": "Artificial limit to the number of cores allowed to be sold.",
+        "renewal_bump": "Amount by which the renewal price increases each sale period."
+    }
+
     # Create input fields and collect updated values
     with st.expander("Configuration values"):
-        st.write("""
-                Configuration values:
-                - interlude_length: The length in blocks of the Interlude Period for forthcoming sales.
-                - leadin_length: The length in blocks of the Leadin Period for forthcoming sales.
-                - region_length: The length in blocks of the Region Period for forthcoming sales.
-                - ideal_bulk_proportion: The proportion of cores available for sale which should be sold in order for the price to remain the same in the next sale.
-                - limit_cores_offered: An artificial limit to the number of cores which are allowed to be sold. If `Some` thenno more cores will be sold than this.
-                - renewal_bump: The amount by which the renewal price increases each sale period.
-                """)
         updated_values = {}
         for attribute_name in dir(config):
             if not attribute_name.startswith("__") and not callable(getattr(config, attribute_name)):
-                value = st.number_input(attribute_name, value=getattr(config, attribute_name))
+                help_text = help_texts.get(attribute_name, "")  # Get help text or default to empty string
+                value = st.number_input(attribute_name, value=getattr(config, attribute_name), help=help_text)
                 updated_values[attribute_name] = value
     return updated_values
 
 def get_slider_input(config, price_calculator):
     # Create a slider for the sale start and price
 
-    observe_time = st.slider('X-AXIS - Observing time - Nb.of regions (28 day chunks)', min_value= 1, max_value=20, value=2, step=1)
+    observe_time = st.slider('X-AXIS - Observing time', min_value= 1, max_value=20, value=2, step=1, help='Number of regions to observe: Nb.of regions (28 day chunks)')
     observe_blocks = observe_time * config.region_length
 
-    initial_bought_price = st.slider('Start Price of the Core You Bought', min_value=0, max_value=2000, value=1000, step=10)
+    initial_bought_price = st.slider('Y-AXIS - Start Price of the Core You Bought', min_value=0, max_value=10000, value=1000, step=10)
     price_calculator.change_bought_price(initial_bought_price)
-    price = st.slider('Starting Price', min_value=0, max_value=2000, value=1000, step=10)
+    price = st.slider('Y-AXIS Starting Price', min_value=0, max_value=10000, value=1000, step=10)
     price_calculator.change_initial_price(price)
 
     with st.expander("Factor curve"):
         st.write("Change the lead-in factor (LF) curve - To exponential or linear")
 
-        linear = st.toggle('-', value=True)
+        linear = st.toggle('-', value=True, help='Toggle between exponential and linear')
         if linear:
-            linear_text = 'Linear'
+            linear_text = 'Current value: Linear'
         else:
-            linear_text = 'Exponential'
+            linear_text = 'Current value: Exponential'
         st.write(linear_text)
 
         price_calculator.change_linear(linear)
-        factor_value = st.slider('Factor Value', min_value=1, max_value=10, value=1, step=1)
+        factor_value = st.slider('Factor Value', min_value=1, max_value=10, value=1, step=1, help='Factor value for the lead-in factor curve')
         price_calculator.change_factor(factor_value)
     
         st.write(price_calculator.get_factor(), price_calculator.get_linear())
@@ -94,6 +97,10 @@ def main():
 
         st.header("Sale Settings")
         observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = get_slider_input(config, price_calculator)
+
+    st.markdown(create_tooltip("Red-Yellow: INTERLUDE PERIOD", "The area between the red and yellow section represents the INTERLUDE Period, this is the time when accounts who bought their cores in previous blocks can renew them."), unsafe_allow_html=True)
+    st.markdown(create_tooltip("Yellow-Green: LEADIN PERIOD", "The area between the yellow and green section represents the LEADIN Period, this is the time when new sales occur."), unsafe_allow_html=True)
+
 
     region_nb = int(observe_blocks / config.region_length)
     
