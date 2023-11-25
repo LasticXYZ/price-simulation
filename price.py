@@ -1,10 +1,13 @@
-from linear import Linear
+from poly import Linear, Exponential
 
 class CalculatePrice:
     """
     This class is responsible for calculating the prices associated with sales over time.
     """
     def __init__(self, config):
+        # The leadin factor is either linear or exponential depending on the value of self.linear
+        self.linear = False
+        self.factor = 1
         # price for which the cores were bought - important for renewal
         self.initial_bought_price = 1000
         # price for which the cores will be bought in the next sale
@@ -19,6 +22,33 @@ class CalculatePrice:
         self.cores_sold_in_sale = 6
         self.cores_sold = self.cores_sold_in_renewal + self.cores_sold_in_sale
 
+    def get_factor(self):
+        """
+        Get the factor of the exponential or linear function.
+        """
+        return self.factor
+    
+    def get_linear(self):
+        """
+        Get the factor of the exponential or linear function.
+        """
+        return self.linear
+
+    def change_linear(self, linear):
+        """
+        Update the linear factor.
+
+        :param linear: The new linear factor to set.
+        """
+        self.linear = linear
+
+    def change_factor(self, factor):
+        """
+        Update the factor. Of the exponential or linear function.
+
+        :param factor: The new factor to set.
+        """
+        self.factor = factor
 
     def change_initial_price(self, new_initial_price):
         """
@@ -99,8 +129,11 @@ class CalculatePrice:
         through = num / leadin_length
         
         # Calculate the lead-in factor (LF). You need to define how LF is calculated based on through.
-        # For example, if LF is a linear function of through, you have:
-        LF = Linear.leadin_factor_at(through)
+        # Choose linear or exponential.
+        if self.linear == True:
+            LF = Linear.leadin_factor_at(through, factor=self.factor)
+        else:
+            LF = Exponential.leadin_factor_at(through, factor=self.factor)
         
         # Calculate sale price
         sale_price = LF * self.price
