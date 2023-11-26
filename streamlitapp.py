@@ -42,7 +42,7 @@ class StreamlitApp:
             "limit_cores_offered": "Artificial limit to the number of cores allowed to be sold.",
             "renewal_bump": "Amount by which the renewal price increases each sale period."
         }
-    
+
     def get_observation_time_input(self):
         """
         Create a slider to set the observation time.
@@ -51,8 +51,7 @@ class StreamlitApp:
             'X-AXIS - Observing time', min_value=1, max_value=20, value=2, step=1,
             help='Number of regions to observe: Nb.of regions (28 day chunks)'
         )
-        observe_blocks = observe_time * self.config.region_length
-        return observe_blocks
+        return observe_time
 
     def get_price_input(self):
         """
@@ -86,7 +85,7 @@ class StreamlitApp:
             self.price_calculator.change_factor(factor_value)
             st.write(self.price_calculator.get_factor(), self.price_calculator.get_linear())
 
-    def get_cores_input(self):
+    def get_cores_input(self, observe_time):
         """
         Create sliders for setting the number of cores renewed and sold in each sale.
         """
@@ -100,16 +99,34 @@ class StreamlitApp:
             'Cores sold in each sale', min_value=0, max_value=max_sold_cores, value=0, step=1
         )
 
+
+        st.markdown("### Adjustment for each region length (28 days)")
+        monthly_renewals = {}
+        monthly_sales = {}
+        for month in range(1, observe_time + 1):
+            with st.expander(f"Region {month} Adjustments"):
+                renewed_cores = st.slider(f'Cores renewed in Month {month}', min_value=0, max_value=self.config.limit_cores_offered, value=10, step=1)
+                if self.config.limit_cores_offered - renewed_cores > 0:
+                    sold_cores = st.slider(f'Cores sold in Month {month}', min_value=0, max_value=self.config.limit_cores_offered - renewed_cores, value=0, step=1)
+                else:
+                    sold_cores = 0
+                monthly_renewals[month] = renewed_cores
+                monthly_sales[month] = sold_cores
+            st.write("Region nb. ", month, ": Renewals ", renewed_cores, ", Sold ", sold_cores)
+
+
         return renewed_cores_in_each_sale, sold_cores_in_each_sale
 
     def get_slider_input(self):
         """
         Combine all slider inputs into one method.
         """
-        observe_blocks = self.get_observation_time_input()
+        observe_time = self.get_observation_time_input()
+        observe_blocks = observe_time * self.config.region_length
+
         self.get_price_input()
         self.get_factor_curve_input()
-        renewed_cores_in_each_sale, sold_cores_in_each_sale = self.get_cores_input()
+        renewed_cores_in_each_sale, sold_cores_in_each_sale = self.get_cores_input(observe_time)
 
         return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
 
