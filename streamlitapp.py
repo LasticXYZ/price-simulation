@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import streamlitapp as st
+import streamlit as st
 from helpercss import create_tooltip
 
 BLOCKS_PER_DAY = 5
