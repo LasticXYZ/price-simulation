@@ -90,32 +90,41 @@ class StreamlitApp:
         Create sliders for setting the number of cores renewed and sold in each sale.
         """
         st.header("Cores Renewed and Sold in Each Sale")
-        renewed_cores_in_each_sale = st.slider(
-            'Cores renewed in each sale', min_value=0, max_value=self.config.limit_cores_offered, value=10, step=1
-        )
-
-        max_sold_cores = self.config.limit_cores_offered - renewed_cores_in_each_sale
-        sold_cores_in_each_sale = 0 if max_sold_cores <= 0 else st.slider(
-            'Cores sold in each sale', min_value=0, max_value=max_sold_cores, value=0, step=1
-        )
-
-
-        st.markdown("### Adjustment for each region length (28 days)")
+        const_or_regions = st.toggle('Toggle between const and variable sales', value=True, help='Switch between constant sales of cores over all regions or variable sales.')
         monthly_renewals = {}
         monthly_sales = {}
-        for month in range(1, observe_time + 1):
-            with st.expander(f"Region {month} Adjustments"):
-                renewed_cores = st.slider(f'Cores renewed in Month {month}', min_value=0, max_value=self.config.limit_cores_offered, value=10, step=1)
-                if self.config.limit_cores_offered - renewed_cores > 0:
-                    sold_cores = st.slider(f'Cores sold in Month {month}', min_value=0, max_value=self.config.limit_cores_offered - renewed_cores, value=0, step=1)
-                else:
-                    sold_cores = 0
-                monthly_renewals[month] = renewed_cores
-                monthly_sales[month] = sold_cores
-            st.write("Region nb. ", month, ": Renewals ", renewed_cores, ", Sold ", sold_cores)
 
+        if const_or_regions:
+            st.markdown("### Constant sales of cores over all regions")
 
-        return renewed_cores_in_each_sale, sold_cores_in_each_sale
+            renewed_cores_in_each_sale = st.slider(
+                'Cores renewed in each sale', min_value=0, max_value=self.config.limit_cores_offered, value=10, step=1
+            )
+
+            max_sold_cores = self.config.limit_cores_offered - renewed_cores_in_each_sale
+            sold_cores_in_each_sale = 0 if max_sold_cores <= 0 else st.slider(
+                'Cores sold in each sale', min_value=0, max_value=max_sold_cores, value=0, step=1
+            )
+
+            for month in range(1, observe_time + 1):
+                monthly_renewals[month] = renewed_cores_in_each_sale
+                monthly_sales[month] = sold_cores_in_each_sale
+
+        else:
+            st.markdown("### Adjustment for each region length (28 days)")
+            for month in range(1, observe_time + 1):
+                with st.expander(f"Region {month} Adjustments"):
+                    renewed_cores = st.slider(f'Cores renewed in Month {month}', min_value=0, max_value=self.config.limit_cores_offered, value=10, step=1)
+                    if self.config.limit_cores_offered - renewed_cores > 0:
+                        sold_cores = st.slider(f'Cores sold in Month {month}', min_value=0, max_value=self.config.limit_cores_offered - renewed_cores, value=0, step=1)
+                    else:
+                        sold_cores = 0
+                    monthly_renewals[month] = renewed_cores
+                    monthly_sales[month] = sold_cores
+                st.write("Region nb. ", month, ": Renewals ", renewed_cores, ", Sold ", sold_cores)
+
+        return monthly_renewals, monthly_sales
+
 
     def get_slider_input(self):
         """
@@ -126,9 +135,9 @@ class StreamlitApp:
 
         self.get_price_input()
         self.get_factor_curve_input()
-        renewed_cores_in_each_sale, sold_cores_in_each_sale = self.get_cores_input(observe_time)
+        monthly_renewals, monthly_sales = self.get_cores_input(observe_time)
 
-        return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
+        return observe_blocks, monthly_renewals, monthly_sales
 
     def plot_sale_price(self, ax, block_times, sale_prices, region_start, label):
         ax.plot(block_times, sale_prices, label=label)
@@ -147,16 +156,16 @@ class StreamlitApp:
             self.price_calculator.update_config(self.config)
 
             st.header("Sale Settings")
-            observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = self.get_slider_input()
+            observe_blocks, monthly_renewals, monthly_sales = self.get_slider_input()
 
-        return observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale
+        return observe_blocks, monthly_renewals, monthly_sales
 
     def _explaination_section(self):
         st.markdown(create_tooltip("Red-Yellow: INTERLUDE PERIOD", "The area between the red and yellow section represents the INTERLUDE Period, this is the time when accounts who bought their cores in previous blocks can renew them."), unsafe_allow_html=True)
         st.markdown(create_tooltip("Yellow-Green: LEADIN PERIOD", "The area between the yellow and green section represents the LEADIN Period, this is the time when new sales occur."), unsafe_allow_html=True)
         st.markdown(create_tooltip("Red-Red: REGION PERIOD", "The area between two red sections represents the REGION Period, this represents one region length."), unsafe_allow_html=True)
 
-    def _plot_graph(self, observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale):
+    def _plot_graph(self, observe_blocks, monthly_renewals, monthly_sales):
         region_nb = int(observe_blocks / self.config.region_length)
 
         fig, ax = plt.subplots()
@@ -170,7 +179,7 @@ class StreamlitApp:
             # Recalculate the price of renewal of the core
             self.price_calculator.update_renewal_price()
             # Recalculate the price at the end of each region
-            self.price_calculator.start_price_calculate(renewed_cores_in_each_sale, sold_cores_in_each_sale)
+            self.price_calculator.start_price_calculate(monthly_renewals.get(region_i + 1, 0), monthly_sales.get(region_i + 1, 0))
 
         ax.set_xlabel('Block Time')
         ax.set_ylabel('Sale Price')
@@ -182,9 +191,9 @@ class StreamlitApp:
         """
         Run the Streamlit application.
         """
-        observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale = self._create_sidebar()
+        observe_blocks, monthly_renewals, monthly_sales = self._create_sidebar()
 
         st.title('Sale Price over Time')
 
         self._explaination_section()
-        self._plot_graph(observe_blocks, renewed_cores_in_each_sale, sold_cores_in_each_sale)
+        self._plot_graph(observe_blocks, monthly_renewals, monthly_sales)
