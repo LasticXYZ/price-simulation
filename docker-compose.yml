@@ -1,0 +1,9 @@
+version: '3.10'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/usr/src/app

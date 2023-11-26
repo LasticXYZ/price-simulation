@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 from helpercss import create_tooltip
 
-BLOCKS_PER_DAY = 4
+BLOCKS_PER_DAY = 5
 SALE_START = 0
 
 def get_config_input(config):

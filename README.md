@@ -18,7 +18,7 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
 - Python 3.x
 - Pip (Python package installer)
 
-### Installation
+### Installation with venv (more difficult)
 
 1. Clone the repository:
    ```sh
