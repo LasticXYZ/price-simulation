@@ -13,12 +13,43 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
 
 ## Getting Started
 
-### Prerequisites
+### Installation
+
+#### Using Docker Compose (Recommended for Production)
+
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/LasticXYZ/price-simulation.git
+   cd price-simulation
+   ```
+
+2. Build and run the application using Docker Compose:
+   ```sh
+   docker-compose up --build
+   ```
+
+3. Access the application at `http://localhost:8501`.
+
+4. To stop and remove the containers:
+   ```sh
+   docker-compose down
+   ```
+
+   Optionally, to remove volumes as well:
+   ```sh
+   docker-compose down -v
+   ```
+
+#### Using Python and Pip (Recommended for Development)
+
+##### Prerequisites
 
 - Python 3.x
 - Pip (Python package installer)
+- Docker (optional, for containerized deployment)
+- Docker Compose (optional, for managing multi-container Docker applications)
 
-### Installation
+##### Installation
 
 1. Clone the repository:
    ```sh
@@ -60,11 +91,7 @@ Contributions are welcome! Please feel free to submit pull requests, create issu
 This project is licensed under the GPLv3 License - see the [LICENSE](LICENSE) file for details.
 
 ## Contact
+
 [Lastic Telegram](https://t.me/+khw2i6GGYFw3NDNi)
 
 Project Link: [https://github.com/lastic_xyz/price-sumulation](https://github.com/LasticXYZ/price-simulation)
-
-## Acknowledgments
-
-- List any resources, libraries, or tools that were used in the creation of this project.
-- Give credit to authors and contributors.
