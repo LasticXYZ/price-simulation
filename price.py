@@ -3,6 +3,7 @@ from poly import Linear, Exponential
 class CalculatePrice:
     """
     This class is responsible for calculating the prices associated with sales over time.
+
     """
     def __init__(self, config):
         # The leadin factor is either linear or exponential depending on the value of self.linear
@@ -77,13 +78,15 @@ class CalculatePrice:
     def update_renewal_price(self):
         """
         Update the renewal price based on the initial bought price and the new buy price.
+        Checkout imitated code at: https://github.com/paritytech/polkadot-sdk/blob/2610450a18e64079abfe98f0a5b57069bbb61009/substrate/frame/broker/src/dispatchable_impls.rs#L155C7-L157
         """
-        cap_price = self.initial_bought_price * (1 + self.config.renewal_bump)
-        self.initial_bought_price = min(cap_price, self.new_buy_price)
+        price_cap = self.initial_bought_price * (1 + self.config.renewal_bump)
+        self.initial_bought_price = min(price_cap, self.new_buy_price)
 
-    def start_price_calculate(self, renewed_cores, sold_cores):
+    def rotate_sale(self, renewed_cores, sold_cores):
         """
         Calculate the starting price for the upcoming sale based on the number of cores sold.
+        Imitates function `rotate_sale`: https://github.com/paritytech/polkadot-sdk/blob/4298bc608fa8e5d8b8fb1ca0c1028613d82bc99b/substrate/frame/broker/src/tick_impls.rs#L138
 
         :param sold: The number of cores sold in the previous sale.
         """
@@ -113,7 +116,9 @@ class CalculatePrice:
     def __sale_price_calculate(self, region_start, block_now):
         """
         Calculate the sale price at a given block time.
-
+        Function imitates `do_purchase`: https://github.com/paritytech/polkadot-sdk/blob/2610450a18e64079abfe98f0a5b57069bbb61009/substrate/frame/broker/src/dispatchable_impls.rs#L97
+        and `sale_price`: https://github.com/paritytech/polkadot-sdk/blob/4298bc608fa8e5d8b8fb1ca0c1028613d82bc99b/substrate/frame/broker/src/utility_impls.rs#L63
+        
         :param region_start: The starting block of the current region.
         :param block_now: The current block.
         :return: The calculated sale price.
@@ -161,6 +166,7 @@ class CalculatePrice:
     def __renew_price(self, region_start, block_now):
         """
         Calculate the new buy price after renewal.
+        Function imitates `do_renew`: https://github.com/paritytech/polkadot-sdk/blob/2610450a18e64079abfe98f0a5b57069bbb61009/substrate/frame/broker/src/dispatchable_impls.rs#L125
 
         :param region_start: The starting block of the current region.
         :param block_now: The current block.
