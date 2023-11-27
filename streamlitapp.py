@@ -179,7 +179,7 @@ class StreamlitApp:
             # Recalculate the price of renewal of the core
             self.price_calculator.update_renewal_price()
             # Recalculate the price at the end of each region
-            self.price_calculator.start_price_calculate(monthly_renewals.get(region_i + 1, 0), monthly_sales.get(region_i + 1, 0))
+            self.price_calculator.rotate_sale(monthly_renewals.get(region_i + 1, 0), monthly_sales.get(region_i + 1, 0))
 
         ax.set_xlabel('Block Time')
         ax.set_ylabel('Sale Price')
