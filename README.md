@@ -57,7 +57,13 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
    cd price-simulation
    ```
 
-2. Install the required packages:
+2. Create and activate a virtual environment (optional but recommended):
+```sh
+python -m venv .venv
+source .venv/bin/activate
+```
+
+3. Install the required packages:
     ```sh
     pip install -r requirements.txt
     ```
@@ -67,7 +73,7 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
     pip install numpy matplotlib streamlit
     ```
 
-3. Run the Streamlit application:
+4. Run the Streamlit application:
    ```sh
    streamlit run main.py
    ```
