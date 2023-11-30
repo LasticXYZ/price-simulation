@@ -7,7 +7,7 @@ class Linear:
 
         Function follows the code in: https://github.com/paritytech/polkadot-sdk/blob/2610450a18e64079abfe98f0a5b57069bbb61009/substrate/frame/broker/src/adapt_price.rs#L50 
         """
-        return (2 - when) * factor
+        return 1 + (factor) * (1 - when)
 
     @staticmethod
     def adapt_price(sold, target, limit):
