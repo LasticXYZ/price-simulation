@@ -139,10 +139,10 @@ class StreamlitApp:
         return observe_blocks, monthly_renewals, monthly_sales
 
     def _plot_sale_price(self, ax, block_times, sale_prices, region_start, label):
+        ax.axvline(x=region_start, color='#F88379', linestyle='--')
+        ax.axvline(x=region_start + self.config.interlude_length, color='#dd3', linestyle='--')
+        ax.axvline(x=region_start + self.config.interlude_length + self.config.leadin_length, color='#097969', linestyle='--')
         ax.plot(block_times, sale_prices, label=label)
-        ax.axvline(x=region_start, color='r', linestyle='--')
-        ax.axvline(x=region_start + self.config.interlude_length, color='y', linestyle='--')
-        ax.axvline(x=region_start + self.config.interlude_length + self.config.leadin_length, color='g', linestyle='--')
         ax.axvline(x=region_start + self.config.region_length, color='b', linestyle='--')
 
     def _create_sidebar(self):
@@ -162,9 +162,12 @@ class StreamlitApp:
         return observe_blocks, monthly_renewals, monthly_sales
 
     def _explaination_section(self):
-        st.markdown(create_tooltip("Red-Yellow: INTERLUDE PERIOD", "The area between the red and yellow section represents the INTERLUDE Period, this is the time when accounts who bought their cores in previous blocks can renew them."), unsafe_allow_html=True)
+        st.markdown("#### 🎉 Welcome to the Coretime Price Simulator! 🎉")
+        st.markdown("To get started and learn how to effectively use this tool, please refer to our comprehensive guide at [docs.lastic.xyz](https://docs.lastic.xyz/price-simulator/). This simulator is designed with a key presumption: it assumes that purchases are made at the lowest possible price in each cycle. However, please note that this may not always reflect real-world scenarios.")
+        st.write("To enhance your experience and understanding of the graph, here's a quick rundown of some essential terms.")
+        st.markdown(create_tooltip("Red-Yellow: INTERLUDE PERIOD", "The area between the red and yellow section represents the INTERLUDE Period, this is the time when accounts who bought their cores in previous blocks can renew them. It's the span between the end of one Leadin Period and the start of the next, where the core's price and allocation are stable."), unsafe_allow_html=True)
         st.markdown(create_tooltip("Yellow-Green: LEADIN PERIOD", "The area between the yellow and green section represents the LEADIN Period, this is the time when new sales occur."), unsafe_allow_html=True)
-        st.markdown(create_tooltip("Red-Red: REGION PERIOD", "The area between two red sections represents the REGION Period, this represents one region length."), unsafe_allow_html=True)
+        st.markdown(create_tooltip("Green-Green: REGION PERIOD", "The area between two green sections represents a REGION Period, This represents the duration of each core allocation following the sale."), unsafe_allow_html=True)
 
     def _plot_graph(self, observe_blocks, monthly_renewals, monthly_sales):
         region_nb = int(observe_blocks / self.config.region_length)
@@ -194,7 +197,7 @@ class StreamlitApp:
         """
         observe_blocks, monthly_renewals, monthly_sales = self._create_sidebar()
 
-        st.title('Sale Price over Time')
+        st.title('Coretime Sale Price over Time')
 
         self._explaination_section()
         self._plot_graph(observe_blocks, monthly_renewals, monthly_sales)
