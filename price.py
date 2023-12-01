@@ -1,10 +1,12 @@
 from poly import Linear, Exponential
 
+
 class CalculatePrice:
     """
     This class is responsible for calculating the prices associated with sales over time.
 
     """
+
     def __init__(self, config):
         # The leadin factor is either linear or exponential depending on the value of self.linear
         self.linear = False
@@ -28,7 +30,7 @@ class CalculatePrice:
         Get the factor of the exponential or linear function.
         """
         return self.factor
-    
+
     def get_linear(self):
         """
         Get the factor of the exponential or linear function.
@@ -88,7 +90,8 @@ class CalculatePrice:
         Calculate the starting price for the upcoming sale based on the number of cores sold.
         Imitates function `rotate_sale`: https://github.com/paritytech/polkadot-sdk/blob/4298bc608fa8e5d8b8fb1ca0c1028613d82bc99b/substrate/frame/broker/src/tick_impls.rs#L138
 
-        :param sold: The number of cores sold in the previous sale.
+        :param renewed_cores: The number of cores sold in renewal.
+        :param sold_cores: The number of cores sold in the previous sale.
         """
         self.cores_sold_in_renewal = renewed_cores
         self.cores_sold_in_sale = sold_cores
@@ -111,35 +114,37 @@ class CalculatePrice:
             purchase_price = self.price
 
         if purchase_price is not None:
-            self.price = Linear.adapt_price(self.cores_sold, ideal, offered) * purchase_price
+            self.price = (
+                Linear.adapt_price(self.cores_sold, ideal, offered) * purchase_price
+            )
 
     def __sale_price_calculate(self, region_start, block_now):
         """
         Calculate the sale price at a given block time.
         Function imitates `do_purchase`: https://github.com/paritytech/polkadot-sdk/blob/2610450a18e64079abfe98f0a5b57069bbb61009/substrate/frame/broker/src/dispatchable_impls.rs#L97
         and `sale_price`: https://github.com/paritytech/polkadot-sdk/blob/4298bc608fa8e5d8b8fb1ca0c1028613d82bc99b/substrate/frame/broker/src/utility_impls.rs#L63
-        
+
         :param region_start: The starting block of the current region.
         :param block_now: The current block.
         :return: The calculated sale price.
         """
         # Calculate the sale price at a given block time
         leadin_length = self.config.leadin_length
-        
+
         # Calculate num
         num = max(block_now - region_start, 0)
         num = min(num, leadin_length)
-        
+
         # Calculate through
         through = num / leadin_length
-        
+
         # Calculate the lead-in factor (LF). You need to define how LF is calculated based on through.
         # Choose linear or exponential.
         if self.linear == True:
             LF = Linear.leadin_factor_at(through, factor=self.factor)
         else:
             LF = Exponential.leadin_factor_at(through, factor=self.factor)
-        
+
         # Calculate sale price
         sale_price = LF * self.price
 
@@ -147,7 +152,7 @@ class CalculatePrice:
         self.__sellout_price_update()
 
         return sale_price
-    
+
     def __sellout_price_update(self):
         """
         Update the sellout price until we have sold less than the ideal number
@@ -159,9 +164,10 @@ class CalculatePrice:
         :return: The calculated sellout price.
         """
         ideal = int(self.config.ideal_bulk_proportion * self.config.limit_cores_offered)
-        if (self.cores_sold_in_renewal <= ideal and self.cores_sold_in_sale > 0) or self.sellout_price is None:
+        if (
+            self.cores_sold_in_renewal <= ideal and self.cores_sold_in_sale > 0
+        ) or self.sellout_price is None:
             self.sellout_price = self.price
-
 
     def __renew_price(self, region_start, block_now):
         """
@@ -173,7 +179,9 @@ class CalculatePrice:
         :return: The new buy price after renewal.
         """
         cap_price = self.initial_bought_price * (1 + self.config.renewal_bump)
-        self.new_buy_price = min(cap_price, self.__sale_price_calculate(region_start, block_now))
+        self.new_buy_price = min(
+            cap_price, self.__sale_price_calculate(region_start, block_now)
+        )
         return self.new_buy_price
 
     def calculate_price(self, region_start, block_now):
@@ -185,8 +193,12 @@ class CalculatePrice:
         :return: The calculated price.
         """
         if not region_start <= block_now <= (region_start + self.config.region_length):
-            raise ValueError("Invalid input: block_now must be greater than or equal to region_start.")
+            raise ValueError(
+                "Invalid input: block_now must be greater than or equal to region_start."
+            )
         elif block_now < region_start + self.config.interlude_length:
             return self.__renew_price(region_start, block_now)
         else:
-            return self.__sale_price_calculate(region_start + self.config.interlude_length, block_now)
+            return self.__sale_price_calculate(
+                region_start + self.config.interlude_length, block_now
+            )
