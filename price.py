@@ -140,7 +140,7 @@ class CalculatePrice:
 
         # Calculate the lead-in factor (LF). You need to define how LF is calculated based on through.
         # Choose linear or exponential.
-        if self.linear == True:
+        if self.linear:
             LF = Linear.leadin_factor_at(through, factor=self.factor)
         else:
             LF = Exponential.leadin_factor_at(through, factor=self.factor)
@@ -158,10 +158,6 @@ class CalculatePrice:
         Update the sellout price until we have sold less than the ideal number
         of cores or if we have not yet set a sellout price.
         We assume that the cores that were sold in the sell period were sold at the lowest price of the sale.
-
-        :param region_start: The starting block of the current region.
-        :param block_now: The current block.
-        :return: The calculated sellout price.
         """
         ideal = int(self.config.ideal_bulk_proportion * self.config.limit_cores_offered)
         if (
