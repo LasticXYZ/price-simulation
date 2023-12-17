@@ -58,10 +58,10 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
    ```
 
 2. Create and activate a virtual environment (optional but recommended):
-```sh
-python -m venv .venv
-source .venv/bin/activate
-```
+   ```sh
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
 
 3. Install the required packages:
     ```sh
@@ -77,6 +77,24 @@ source .venv/bin/activate
    ```sh
    streamlit run main.py
    ```
+
+### Running Unit Tests
+
+To run unit tests for this project, execute the following commands:
+
+1. Install the required packages for testing:
+
+    ```sh
+    pip install -r requirements-test.txt
+    ```
+
+2. Run the tests:
+
+    ```sh
+    python -m unittest discover
+    ```
+
+This will execute all unit tests in the project.
 
 ### Usage
 
