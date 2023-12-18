@@ -40,6 +40,11 @@ This repository is meant to be from [Lastic](https://lastic.xyz) for the entire 
    docker-compose down -v
    ```
 
+5. To run tests with Docker run the command:
+   ```sh
+   docker-compose run --rm test
+   ```
+
 #### Using Python and Pip (Recommended for Development)
 
 ##### Prerequisites
@@ -85,7 +90,7 @@ To run unit tests for this project, execute the following commands:
 1. Install the required packages for testing:
 
     ```sh
-    pip install -r requirements-test.txt
+    pip install -r requirements.txt
     ```
 
 2. Run the tests:
