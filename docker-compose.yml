@@ -7,3 +7,8 @@ services:
       - "8501:8501"
     volumes:
       - .:/usr/src/app
+  test:
+    build: .
+    volumes:
+      - .:/usr/src/app
+    command: python -m unittest discover
