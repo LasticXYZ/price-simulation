@@ -98,8 +98,19 @@ class CalculatePrice:
         self.cores_sold = self.cores_sold_in_renewal + self.cores_sold_in_sale
         # Calculate the start price for the upcoming sale
         # Update price for new cycle
-        offered = self.config.limit_cores_offered
-        ideal = int(self.config.ideal_bulk_proportion * offered)
+        offered = (
+            self.config.limit_cores_offered
+            if self.config.limit_cores_offered is not None
+            else 0
+        )
+
+        ideal_bulk_proportion = (
+            self.config.ideal_bulk_proportion
+            if self.config.ideal_bulk_proportion is not None
+            else 0
+        )
+
+        ideal = int(ideal_bulk_proportion * offered)
         if offered == 0:
             # No cores offered for sale - no purchase price.
             purchase_price = None
@@ -159,7 +170,19 @@ class CalculatePrice:
         of cores or if we have not yet set a sellout price.
         We assume that the cores that were sold in the sell period were sold at the lowest price of the sale.
         """
-        ideal = int(self.config.ideal_bulk_proportion * self.config.limit_cores_offered)
+        offered = (
+            self.config.limit_cores_offered
+            if self.config.limit_cores_offered is not None
+            else 0
+        )
+
+        ideal_bulk_proportion = (
+            self.config.ideal_bulk_proportion
+            if self.config.ideal_bulk_proportion is not None
+            else 0
+        )
+
+        ideal = int(ideal_bulk_proportion * offered)
         if (
             self.cores_sold_in_renewal <= ideal and self.cores_sold_in_sale > 0
         ) or self.sellout_price is None:
